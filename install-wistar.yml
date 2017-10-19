@@ -187,6 +187,12 @@
       state: present
       update_cache: yes
 
+  - name: Ensure apicv is turned off in kernel module (for srx)
+    lineinfile:
+      dest: /etc/modprobe.d/dist.conf
+      create: yes
+      line: options kvm_intel enable_apicv=n
+
   handlers:
     - name: restart apache
       service: name=apache2 state=restarted
