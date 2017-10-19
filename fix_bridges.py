@@ -13,5 +13,6 @@ BR_INFO = subprocess.Popen("ifconfig | grep _br", shell=True, stdout=subprocess.
 BRIDGES = re.findall('(t.*_br.*?) ', BR_INFO, re.DOTALL)
 
 for bridge in BRIDGES:
+    print("fixing bridge " + bridge)
     command = "echo 65535 > /sys/class/net/" + bridge + "/bridge/group_fwd_mask"
     subprocess.call(command, shell=True)
