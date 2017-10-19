@@ -1,0 +1,192 @@
+---
+#
+# Provisions all the required dependencies for Wistar on the local host
+#
+
+- name: Provision Wistar
+  hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+  - name: Update all packages to the latest version
+    apt:
+      upgrade: dist
+      update_cache: yes
+
+  - name: Install Junos-eznc dependancies
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - build-essential
+      - libxml2-dev
+      - libxslt1-dev
+      - libz-dev
+      - libffi-dev
+      - libssl-dev
+      - python-dev
+      - git
+      - python-pip
+
+  - name: Install python-cryptography
+    pip:
+      name: cryptography
+      editable: false
+
+  - name: Install junos-eznc
+    pip:
+      name: junos-eznc
+      editable: false
+
+  - name: Install jxmlease
+    pip:
+      name: jxmlease
+      editable: false
+
+  - name: Install Wistar dependancies
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: true
+    with_items:
+      - qemu-kvm
+      - libvirt-bin
+      - socat
+      - python-pexpect
+      - python-libvirt
+      - python-yaml
+      - unzip
+      - bridge-utils
+      - python-numpy
+      - genisoimage
+      - python-netaddr
+      - python-markupsafe
+      - python-setuptools
+      - mtools
+
+  - name: Install Django
+    pip:
+      name: django
+      version: 1.9.9
+      editable: false
+
+  - name: Install Python virtualBox
+    pip:
+      name: pyvbox
+      editable: false
+
+  - name: Create Wistar directory structure 1
+    file:
+      path: /opt/wistar
+      state: directory
+  - name: Create Wistar directory structure 2
+    file:
+      path: /opt/wistar/user_images
+      state: directory
+  - name: Create Wistar directory structure 3
+    file:
+      path: /opt/wistar/wistar-master
+      state: directory
+  - name: Create Wistar directory structure 4
+    file:
+      path: /opt/wistar/media
+      state: directory
+  - name: Create Wistar directory structure 5
+    file:
+      path: /opt/wistar/seeds
+      state: directory
+  - name: Create Wistar directory structure 6
+    file:
+      path: /opt/wistar/user_images/instances
+      state: directory
+
+  - name: Pull latest Wistar from Git
+    git:
+      repo: https://github.com/Juniper/wistar.git
+      depth: 1
+      dest: /opt/wistar/wistar-master/
+ 
+  - name: Create Wistar tables
+    command: /opt/wistar/wistar-master/manage.py migrate
+
+  - name: install apache2
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - apache2
+      - libapache2-mod-wsgi
+
+  - name: enable the Apache2 module "wsgi"
+    apache2_module:
+      state: present
+      name: wsgi
+    notify: restart apache
+
+  - name: set permissions on wistar dir
+    file:
+      path: /opt/wistar
+      owner: www-data
+      group: www-data
+      state: directory
+      recurse: yes
+
+  - name: set permissions on wistar log
+    file:
+      path: /var/log/wistar.log
+      owner: www-data
+      group: www-data
+      state: touch
+
+  - name: set permissions on wistar errorlog
+    file:
+      path: /var/log/apache2/wistar.log
+      owner: www-data
+      group: www-data
+      state: touch
+
+  - name: set permissions on wistar accesslog
+    file:
+      path: /var/log/apache2/wistar_access.log
+      owner: www-data
+      group: www-data
+      state: touch
+
+  - name: copy wistar config file to apache
+    copy:
+      src: 999-wistar.conf
+      dest: /etc/apache2/sites-available/999-wistar.conf
+
+  - name: enable wistar site in apache
+    file:
+      src: /etc/apache2/sites-available/999-wistar.conf
+      dest: /etc/apache2/sites-enabled/999-wistar.conf
+      state: link
+    notify: restart apache
+
+  - name: add www-data to libvirt users
+    user:
+      name: www-data
+      groups: libvirtd
+      append: yes
+
+  - name: Get the EVE-NG repo key
+    apt_key:
+      url: http://www.eve-ng.net/repo/eczema@ecze.com.gpg.key
+      state: present
+ 
+  - name: Add EVE-NG repository
+    apt_repository:
+      repo: deb [arch=amd64]  http://www.eve-ng.net/repo xenial main
+      state: present
+
+  - name: Install the EVE-NG kernel
+    apt:
+      name: linux-image-4.9.40-eve-ng-ukms-2+
+      state: present
+      update_cache: yes
+
+  handlers:
+    - name: restart apache
+      service: name=apache2 state=restarted
