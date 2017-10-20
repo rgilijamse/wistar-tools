@@ -10,7 +10,7 @@ import re
 # return all bridges that contain _br*
 BR_INFO = subprocess.Popen("ifconfig | grep _br", shell=True, stdout=subprocess.PIPE).stdout.read()
 # regex creates a list of only the bridge names
-BRIDGES = re.findall('(t.*_br.*?) ', BR_INFO, re.DOTALL)
+BRIDGES = re.findall('(t[0-9]+_br[0-9]+?) ', BR_INFO, re.DOTALL)
 
 for bridge in BRIDGES:
     print("fixing bridge " + bridge)
