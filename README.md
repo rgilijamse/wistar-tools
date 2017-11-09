@@ -11,6 +11,8 @@ apt-get install ansible
 ansible-playbook install-wistar.yml
 ```
 
+Dit werkt (getest) met Ubuntu 16.04 LTS.
+
 ## LLDP/LACP fix
 Na deployen van een topologie kan je LLDP en LACP fixen door het onderstaande pythonscript te draaien:
 ```bash
