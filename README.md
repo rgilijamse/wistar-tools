@@ -1,20 +1,25 @@
 # Wistar tools
-Tools om [wistar](https://github.com/Juniper/wistar/) te installeren volgens mijn eigen specificaties:
-* Apache2 frontend
-* EVE-NG kernel (met LACP hack en UKMS)
 
-## Installatie
-Installeer wistar met de volgende commando's:
+Tools to tune [wistar](https://github.com/Juniper/wistar/) according to my specifications:
+
+* Apache2 frontend
+* EVE-NG kernel (with LACP hack and UKMS)
+
+## Installation
+
+Install wistar using these commands:
 
 ```bash
 apt-get install ansible
 ansible-playbook install-wistar.yml
 ```
 
-Dit werkt (getest) met Ubuntu 16.04 LTS.
+This works (tested) with Ubuntu 16.04 LTS.
 
 ## LLDP/LACP fix
-Na deployen van een topologie kan je LLDP en LACP fixen door het onderstaande pythonscript te draaien:
+
+After deploying a topology you can enable LLDP and LACP/STP frames by running this python script:
+
 ```bash
-./fix_bridges.py
+sudo ./fix_bridges.py
 ```
