@@ -1,0 +1,8 @@
+# sample YAML file defining WAN parameters for a Wistar bridge.
+bridges:
+  - name: t1_br1      # string - this is the name of the bridge to modify
+    rate: 256         # int (optional) - specify the link speed in kbit/s
+    latency: 100      # int (optional) - one-way delay in milliseconds
+    jitter: 20        # int (optional) - jitter (variation in delay) in milliseconds
+    loss: 1           # int (optional) - percentage packet loss
+    corrupt: 1        # int (optional) - percentage corrupt packets
