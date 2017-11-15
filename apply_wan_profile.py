@@ -17,7 +17,7 @@ with open(WAN_FILE, "r") as ymlfile:  # this would require some error handling
 
 for bridge in BRIDGES['bridges']:
     # find nics in the bridge
-    command = "brctl show " + bridge.name
+    command = "brctl show " + bridge['name']
     BR_INFO = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.read()
     # regex creates a list of only the vnet nic names
     NICS = re.findall('(vnet[0-9]+?)', BR_INFO, re.DOTALL)
@@ -42,8 +42,12 @@ for bridge in BRIDGES['bridges']:
 
     profile = delay + jitter + loss + corrupt
 
+    # log to commandline
+    print("applying " + profile + " to bridge " + bridge['name'])
+
     # iterate over nics
     for nic in NICS:
         line = "tc qdisc add dev " + nic + " " + profile
         # apply config
         subprocess.call(line, shell=True)
+
