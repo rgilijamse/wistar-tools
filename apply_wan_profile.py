@@ -36,7 +36,7 @@ for bridge in BRIDGES['bridges']:
     else:
         loss = ""
     if 'corrupt' in bridge:
-        corrupt = "corruption" + str(bridge['corrupt']) + "% "
+        corrupt = "corruption " + str(bridge['corrupt']) + "% "
     else:
         corrupt = ""
 
@@ -50,4 +50,3 @@ for bridge in BRIDGES['bridges']:
         line = "tc qdisc add dev " + nic + " " + profile
         # apply config
         subprocess.call(line, shell=True)
-
