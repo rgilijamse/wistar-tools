@@ -6,3 +6,7 @@ bridges:
     jitter: 20        # int (optional) - jitter (variation in delay) in milliseconds
     loss: 1           # int (optional) - percentage packet loss
     corrupt: 1        # int (optional) - percentage corrupt packets
+  - name: t1_br2
+    latency: 250
+  - name: t1_br3
+    rate: 128
