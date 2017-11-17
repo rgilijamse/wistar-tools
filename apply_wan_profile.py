@@ -39,14 +39,28 @@ for bridge in BRIDGES['bridges']:
         corrupt = "corruption " + str(bridge['corrupt']) + "% "
     else:
         corrupt = ""
+    if 'rate' in bridge:
+        rate = str(bridge['rate']) + "kbit burst 15k limit 15k"
+    else:
+        rate = ""
 
     profile = delay + jitter + loss + corrupt
 
-    # log to commandline
-    print("applying " + profile + " to bridge " + bridge['name'])
-
     # iterate over nics
     for nic in NICS:
-        line = "tc qdisc add dev " + nic + " " + profile
-        # apply config
-        subprocess.call(line, shell=True)
+        # assemble settings
+        settings = []
+        if profile:
+            settings.append("netem " + profile)
+        if rate:
+            settings.append("tbf rate " + rate)
+
+        # apply base profile
+        base_profile = "tc qdisc add dev " + nic + " root handle 1: prio"
+        print("applying WAN profle to bridge " + bridge['name'] + ":")
+        subprocess.call(base_profile, shell=True)
+
+        # apply WAN profile
+        for nr, line in enumerate(settings):
+            print("-> apply " + line + " to " + nic)
+            profile_line = "tc qdisc add dev " + nic + " parent 1:" + str(nr+1) + " " + line
